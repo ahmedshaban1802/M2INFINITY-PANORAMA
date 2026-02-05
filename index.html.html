@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الحضور والانصراف</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --warning-color: #e67e22;
+            --edit-color: #8e44ad;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --text-color: #34495e;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            margin-left: 15px;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-filter {
+            display: flex;
+            align-items: center;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 8px 15px;
+        }
+        
+        .date-filter input {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+            width: 150px;
+            font-family: inherit;
+        }
+        
+        .theme-toggle {
+            background: var(--dark-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            transform: rotate(180deg);
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .controls {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .controls-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .controls-title i { margin-left: 10px; color: var(--primary-color); }
+        
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+        }
+        
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .input-group.small { flex: 0 0 120px; min-width: 120px; }
+        .input-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #7f8c8d; }
+        .input-group i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #7f8c8d; z-index: 2; }
+        .input-group:has(label) i { top: calc(50% + 12px); }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: #f9f9f9;
+            font-family: inherit;
+        }
+        .input-group input, .input-group select { padding-left: 40px; }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            height: 48px;
+            padding: 0 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .button-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+        
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .btn-attendance { background: var(--success-color); }
+        .btn-leave { background: var(--danger-color); }
+        .btn-absent { background: var(--warning-color); }
+        .btn-deduction { background: var(--secondary-color); }
+        .btn-edit { background: var(--edit-color); }
+        .btn-delete { background: #7f8c8d; }
+        .btn-excel { background: #217346; }
+        .btn-whatsapp { background: #25D366; }
+        .btn-clear { background: #e74c3c; }
+        .btn-search { background: var(--primary-color); }
+        
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .table-header {
+            background: var(--dark-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: var(--dark-color); position: sticky; top: 0; }
+        tr:hover { background: #f1f1f1; }
+        
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status-present { background: rgba(39, 174, 96, 0.2); color: var(--success-color); }
+        .status-absent { background: rgba(231, 76, 60, 0.2); color: var(--danger-color); }
+        .status-leave { background: rgba(230, 126, 34, 0.2); color: var(--warning-color); }
+        
+        .action-cell { display: flex; justify-content: center; gap: 5px; }
+        
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+            height: 300px;
+        }
+        
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: modalOpen 0.3s ease;
+        }
+        
+        @keyframes modalOpen { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 20px; font-weight: 600; color: var(--dark-color); }
+        .modal-close {
+            background: none; border: none; font-size: 24px; color: #7f8c8d; cursor: pointer;
+            width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border-radius: 50%;
+        }
+        .modal-close:hover { background: var(--light-color); color: var(--dark-color); }
+        .modal-body { margin-bottom: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+
+        .notification {
+            position: fixed; top: 20px; left: 20px;
+            background: white; padding: 15px 20px; border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 10px;
+            transform: translateX(-400px); transition: transform 0.3s ease; z-index: 2000;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.success { border-right: 4px solid var(--success-color); }
+        .notification.error { border-right: 4px solid var(--danger-color); }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Signature Style */
+        .signature {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .controls-row { flex-direction: column; }
+            .button-group { justify-content: center; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 700px; }
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+        body.dark-mode header, body.dark-mode .controls, body.dark-mode .table-container, 
+        body.dark-mode .stat-card, body.dark-mode .modal-content {
+            background: #34495e; color: #ecf0f1;
+        }
+        body.dark-mode h1, body.dark-mode .modal-title, body.dark-mode th { color: #ecf0f1; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode .checkbox-wrapper {
+            background: #2c3e50; border-color: #1a252f; color: #ecf0f1;
+        }
+        body.dark-mode .input-group label { color: #bdc3c7; }
+        body.dark-mode .modal-close { color: #bdc3c7; }
+        body.dark-mode tr:hover { background: #2c3e50; }
+        body.dark-mode .signature { color: #5dade2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <div class="logo"><i class="fas fa-user-clock"></i></div>
+                <h1>نظام الحضور والانصراف</h1>
+            </div>
+            <div class="header-actions">
+                <div class="date-filter">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="dateFilter">
+                </div>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </header>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-check" style="color: var(--success-color);"></i></div>
+                <div class="stat-value" id="presentCount">0</div>
+                <div class="stat-label">الحاضرين اليوم</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-times" style="color: var(--danger-color);"></i></div>
+                <div class="stat-value" id="absentCount">0</div>
+                <div class="stat-label">الغائبين اليوم</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock" style="color: var(--warning-color);"></i></div>
+                <div class="stat-value" id="leaveCount">0</div>
+                <div class="stat-label">المغادرين</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users" style="color: var(--primary-color);"></i></div>
+                <div class="stat-value" id="totalEmployees">0</div>
+                <div class="stat-label">إجمالي الموظفين</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-title"><i class="fas fa-cogs"></i> لوحة التحكم</div>
+            
+            <div class="controls-row">
+                <div class="input-group">
+                    <label>اسم الموظف</label>
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="employeeName" placeholder="أدخل اسم الموظف هنا">
+                </div>
+                <div class="input-group">
+                    <label>بحث</label>
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="بحث عن موظف...">
+                </div>
+            </div>
+
+            <div class="controls-row" style="background: #f0f3f5; padding: 10px; border-radius: 8px;">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="manualTimeToggle" onchange="toggleTimeInput()">
+                    تحديد الوقت يدوياً
+                </label>
+                <div class="input-group small" id="manualTimeInputGroup" style="display: none;">
+                    <i class="fas fa-clock"></i>
+                    <input type="time" id="manualTimeInput">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-attendance" onclick="addAttendance()"><i class="fas fa-sign-in-alt"></i> حضور</button>
+                <button class="btn-leave" onclick="addLeave()"><i class="fas fa-sign-out-alt"></i> انصراف</button>
+                <button class="btn-absent" onclick="markAbsent()"><i class="fas fa-user-slash"></i> غياب</button>
+                <button class="btn-delete" onclick="deleteEmployee()"><i class="fas fa-trash-alt"></i> مسح الاسم</button>
+                <button class="btn-search" onclick="searchEmployee()"><i class="fas fa-search"></i> بحث</button>
+            </div>
+
+            <!-- قسم الخصم المبسط (يدوي بالكامل) -->
+            <div class="controls-row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>تفاصيل الخصم</label>
+                    <i class="fas fa-pen"></i>
+                    <input type="text" id="deductionInput" placeholder="اكتب هنا (مثال: خصم يومين، 3 ساعات، تأخير...)">
+                </div>
+                <div class="input-group" style="flex: 0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn-deduction" onclick="applyDeduction()"><i class="fas fa-check"></i> تسجيل الخصم</button>
+                </div>
+            </div>
+
+            <div class="button-group" style="margin-top: 15px;">
+                <!-- تمت إزالة كلمة احترافي -->
+                <button class="btn-excel" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn-whatsapp" onclick="exportWhatsApp()"><i class="fab fa-whatsapp"></i> واتساب</button>
+                <button class="btn-clear" onclick="showClearModal()"><i class="fas fa-eraser"></i> مسح البيانات</button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title"><i class="fas fa-table"></i> سجل الحضور والانصراف</div>
+                <div class="table-actions">
+                    <button onclick="filterToday()" style="background:rgba(255,255,255,0.2); font-size:14px;">اليوم</button>
+                    <button onclick="filterWeek()" style="background:rgba(255,255,255,0.2); font-size:14px;">الأسبوع</button>
+                    <button onclick="filterMonth()" style="background:rgba(255,255,255,0.2); font-size:14px;">الشهر</button>
+                    <button onclick="showAll()" style="background:rgba(255,255,255,0.2); font-size:14px;">الكل</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>الاسم</th>
+                        <th>الحضور</th>
+                        <th>الانصراف</th>
+                        <th>الحالة</th>
+                        <th>الخصم</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+        
+        <!-- الفوتر المعدل -->
+        <footer>
+            <div class="signature">تم إنشاؤه بواسطة أحمد شعبان</div>
+            <div style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">صلوا على النبي</div>
+        </footer>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">تمت العملية بنجاح</span>
+    </div>
+    
+    <!-- Clear Modal -->
+    <div class="modal" id="clearModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">تأكيد مسح البيانات</div>
+                <button class="modal-close" onclick="closeModal('clearModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من أنك تريد مسح جميع بيانات الحضور والانصراف؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-delete" onclick="closeModal('clearModal')">إلغاء</button>
+                <button class="btn-clear" onclick="clearAllData()">مسح البيانات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Time Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">تعديل الوقت</div>
+                <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editDay">
+                <input type="hidden" id="editName">
+                
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>وقت الحضور</label>
+                    <i class="fas fa-sign-in-alt"></i>
+                    <input type="time" id="editAttendanceTime">
+                </div>
+                <div class="input-group">
+                    <label>وقت الانصراف</label>
+                    <i class="fas fa-sign-out-alt"></i>
+                    <input type="time" id="editLeaveTime">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-delete" onclick="closeModal('editModal')">إلغاء</button>
+                <button class="btn-edit" onclick="saveEdit()">حفظ التعديلات</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // --- Variables & Initialization ---
+        let attendanceData = JSON.parse(localStorage.getItem("attendanceData")) || {};
+        let chart = null;
+        document.getElementById('dateFilter').valueAsDate = new Date();
+
+        // --- Core Helper Functions ---
+        
+        function formatDate(d) {
+            return d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+        }
+        
+        function formatTime(d) {
+            let h = d.getHours(), m = d.getMinutes().toString().padStart(2, "0");
+            let ap = h >= 12 ? "م" : "ص";
+            h = h % 12 || 12;
+            return h + ":" + m + " " + ap;
+        }
+
+        function formatManualTime(timeStr) {
+            if (!timeStr) return "";
+            let [h, m] = timeStr.split(':');
+            h = parseInt(h);
+            let ap = h >= 12 ? "م" : "ص";
+            h = h % 12 || 12;
+            return h + ":" + m + " " + ap;
+        }
+
+        function parseTimeToInput(timeStr) {
+            if (!timeStr) return "";
+            let parts = timeStr.split(' ');
+            if (parts.length < 2) return "";
+            let time = parts[0]; let period = parts[1];
+            let [h, m] = time.split(':');
+            h = parseInt(h);
+            if (period === 'م' && h !== 12) h += 12;
+            if (period === 'ص' && h === 12) h = 0;
+            return h.toString().padStart(2, '0') + ":" + m;
+        }
+
+        function getEmp(day, name) {
+            if (!attendanceData[day]) attendanceData[day] = [];
+            let e = attendanceData[day].find(x => x.name === name);
+            if (!e) {
+                e = { name };
+                attendanceData[day].push(e);
+            }
+            return e;
+        }
+
+        function save() {
+            localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+            render();
+            updateStats();
+            updateChart();
+        }
+
+        function showNotification(msg, type = 'success') {
+            const n = document.getElementById('notification');
+            const nt = document.getElementById('notificationText');
+            const i = n.querySelector('i');
+            nt.textContent = msg;
+            n.className = 'notification show ' + type;
+            i.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            setTimeout(() => n.classList.remove('show'), 3000);
+        }
+
+        // --- Actions ---
+
+        function toggleTimeInput() {
+            document.getElementById('manualTimeInputGroup').style.display = 
+                document.getElementById('manualTimeToggle').checked ? 'block' : 'none';
+        }
+
+        function getSelectedTime() {
+            if (document.getElementById('manualTimeToggle').checked) {
+                return formatManualTime(document.getElementById('manualTimeInput').value);
+            }
+            return formatTime(new Date());
+        }
+
+        function addAttendance() {
+            let n = document.getElementById("employeeName").value.trim();
+            if (!n) return showNotification("الرجاء إدخال اسم الموظف", "warning");
+            let day = formatDate(new Date());
+            let emp = getEmp(day, n);
+            if (emp.attendance) return showNotification("مسجل بالفعل", "warning");
+            emp.attendance = getSelectedTime();
+            emp.absent = ""; emp.deduction = "";
+            save();
+            showNotification(`تم تسجيل حضور ${n}`, "success");
+        }
+
+        function addLeave() {
+            let n = document.getElementById("employeeName").value.trim();
+            if (!n) return showNotification("الرجاء إدخال اسم الموظف", "warning");
+            let day = formatDate(new Date());
+            let emp = getEmp(day, n);
+            if (!emp.attendance) return showNotification("لم يسجل حضوراً بعد", "warning");
+            if (emp.leave) return showNotification("مسجل انصراف بالفعل", "warning");
+            emp.leave = getSelectedTime();
+            save();
+            showNotification(`تم تسجيل انصراف ${n}`, "success");
+        }
+
+        function markAbsent() {
+            let n = document.getElementById("employeeName").value.trim();
+            if (!n) return showNotification("الرجاء إدخال اسم الموظف", "warning");
+            let day = formatDate(new Date());
+            let emp = getEmp(day, n);
+            emp.absent = "غائب"; emp.attendance = ""; emp.leave = "";
+            save();
+            showNotification(`تم تسجيل غياب ${n}`, "success");
+        }
+
+        // --- Updated Deduction Logic (Manual Text) ---
+        function applyDeduction() {
+            let n = document.getElementById("employeeName").value.trim();
+            if (!n) return showNotification("الرجاء إدخال اسم الموظف", "warning");
+            
+            let note = document.getElementById("deductionInput").value.trim();
+            if (!note) return showNotification("اكتب تفاصيل الخصم أولاً", "warning");
+
+            let day = formatDate(new Date());
+            let emp = getEmp(day, n);
+            emp.deduction = note; // Save whatever text is typed
+            
+            document.getElementById("deductionInput").value = "";
+            save();
+            showNotification(`تم تسجيل الخصم: ${note}`, "success");
+        }
+
+        function deleteEmployee() {
+            let n = document.getElementById("employeeName").value.trim();
+            if (!n) return showNotification("أدخل الاسم", "warning");
+            let day = formatDate(new Date());
+            if (attendanceData[day]) {
+                attendanceData[day] = attendanceData[day].filter(e => e.name !== n);
+                save();
+                showNotification("تم الحذف", "success");
+            }
+        }
+
+        // --- Edit Logic ---
+
+        function openEditModal(day, name) {
+            let emp = getEmp(day, name);
+            document.getElementById('editDay').value = day;
+            document.getElementById('editName').value = name;
+            document.getElementById('editAttendanceTime').value = parseTimeToInput(emp.attendance);
+            document.getElementById('editLeaveTime').value = parseTimeToInput(emp.leave);
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function saveEdit() {
+            let day = document.getElementById('editDay').value;
+            let name = document.getElementById('editName').value;
+            let atTime = document.getElementById('editAttendanceTime').value;
+            let lvTime = document.getElementById('editLeaveTime').value;
+
+            if (!attendanceData[day]) return;
+            let emp = attendanceData[day].find(e => e.name === name);
+            if (emp) {
+                emp.attendance = atTime ? formatManualTime(atTime) : "";
+                emp.leave = lvTime ? formatManualTime(lvTime) : "";
+                if (emp.attendance) emp.absent = "";
+                save();
+                closeModal('editModal');
+                showNotification("تم تعديل الوقت بنجاح", "success");
+            }
+        }
+
+        function deleteRecord(day, name) {
+            if (confirm(`حذف سجل ${name}؟`)) {
+                attendanceData[day] = attendanceData[day].filter(e => e.name !== name);
+                if (attendanceData[day].length === 0) delete attendanceData[day];
+                save();
+                showNotification("تم الحذف", "success");
+            }
+        }
+
+        // --- Display & Filters ---
+
+        function getStatusBadge(e) {
+            if (e.absent) return '<span class="status-badge status-absent">غائب</span>';
+            if (e.attendance && e.leave) return '<span class="status-badge status-leave">مغادر</span>';
+            if (e.attendance) return '<span class="status-badge status-present">حاضر</span>';
+            return '-';
+        }
+
+        function renderFilteredData(data) {
+            let body = document.getElementById("tableBody");
+            body.innerHTML = "";
+            let sortedDays = Object.keys(data).sort((a, b) => {
+                let da = new Date(a.split('/')[2], a.split('/')[1] - 1, a.split('/')[0]);
+                let db = new Date(b.split('/')[2], b.split('/')[1] - 1, b.split('/')[0]);
+                return db - da;
+            });
+
+            sortedDays.forEach(day => {
+                data[day].forEach(e => {
+                    let ded = e.deduction || "-";
+                    body.innerHTML += `
+                    <tr>
+                        <td>${day}</td>
+                        <td>${e.name}</td>
+                        <td>${e.attendance || "-"}</td>
+                        <td>${e.leave || "-"}</td>
+                        <td>${getStatusBadge(e)}</td>
+                        <td>${ded}</td>
+                        <td class="action-cell">
+                            <button class="btn-edit" onclick="openEditModal('${day}', '${e.name}')" style="padding:5px 10px; font-size:12px;"><i class="fas fa-pen"></i></button>
+                            <button class="btn-delete" onclick="deleteRecord('${day}', '${e.name}')" style="padding:5px 10px; font-size:12px;"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+            });
+            if (body.innerHTML === "") body.innerHTML = `<tr><td colspan="7" style="padding:20px; text-align:center;">لا توجد بيانات</td></tr>`;
+        }
+
+        function render() { renderFilteredData(attendanceData); }
+        
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                let term = document.getElementById('searchInput').value.trim();
+                if (!term) { render(); return; }
+                let found = {};
+                for (let d in attendanceData) {
+                    let matches = attendanceData[d].filter(e => e.name.includes(term));
+                    if (matches.length) found[d] = matches;
+                }
+                renderFilteredData(found);
+            }
+        });
+
+        function filterToday() {
+            document.getElementById('dateFilter').valueAsDate = new Date();
+            let day = formatDate(new Date());
+            renderFilteredData(attendanceData[day] ? {[day]: attendanceData[day]} : {});
+        }
+
+        function filterWeek() {
+            let w = {};
+            for(let i=0; i<7; i++) {
+                let d = new Date(); d.setDate(d.getDate() - i);
+                let dayStr = formatDate(d);
+                if(attendanceData[dayStr]) w[dayStr] = attendanceData[dayStr];
+            }
+            renderFilteredData(w);
+        }
+
+        function filterMonth() {
+            let m = {};
+            let cur = new Date();
+            for(let d in attendanceData) {
+                let dateParts = d.split('/');
+                if (parseInt(dateParts[1]) === cur.getMonth() + 1 && parseInt(dateParts[2]) === cur.getFullYear()) {
+                    m[d] = attendanceData[d];
+                }
+            }
+            renderFilteredData(m);
+        }
+
+        function showAll() { render(); }
+
+        // --- Stats & Chart ---
+        function updateStats() {
+            let today = formatDate(new Date());
+            let p=0, a=0, l=0, s=new Set();
+            for (let d in attendanceData) {
+                attendanceData[d].forEach(e => {
+                    s.add(e.name);
+                    if (d === today) {
+                        if (e.absent) a++;
+                        else if (e.attendance && e.leave) l++;
+                        else if (e.attendance) p++;
+                    }
+                });
+            }
+            document.getElementById('presentCount').textContent = p;
+            document.getElementById('absentCount').textContent = a;
+            document.getElementById('leaveCount').textContent = l;
+            document.getElementById('totalEmployees').textContent = s.size;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            let labels=[], pData=[], aData=[];
+            for(let i=6; i>=0; i--) {
+                let d = new Date(); d.setDate(d.getDate()-i);
+                let dayStr = formatDate(d);
+                labels.push(dayStr);
+                let p=0, a=0;
+                if(attendanceData[dayStr]) attendanceData[dayStr].forEach(e => {
+                    if(e.absent) a++; else if(e.attendance) p++;
+                });
+                pData.push(p); aData.push(a);
+            }
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'حاضر', data: pData, backgroundColor: 'rgba(39, 174, 96, 0.7)' },
+                        { label: 'غائب', data: aData, backgroundColor: 'rgba(231, 76, 60, 0.7)' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        // --- Exports ---
+
+        function exportExcel() {
+            let style = `
+                <style>
+                    table { width: 100%; border-collapse: collapse; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; }
+                    th { background-color: #4472C4; color: white; font-weight: bold; border: 1px solid #ddd; padding: 10px; text-align: center; }
+                    td { border: 1px solid #ddd; padding: 8px; text-align: center; color: #333; }
+                    tr:nth-child(even) { background-color: #f2f2f2; }
+                    .header-row { font-size: 16px; }
+                    .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+                    .present { background-color: #e6f4ea; color: #1e7e34; }
+                    .absent { background-color: #fbe9eb; color: #bd2130; }
+                    .leave { background-color: #fff3cd; color: #856404; }
+                </style>
+            `;
+
+            let rows = '';
+            let sortedDays = Object.keys(attendanceData).sort((a, b) => {
+                let da = new Date(a.split('/')[2], a.split('/')[1] - 1, a.split('/')[0]);
+                let db = new Date(b.split('/')[2], b.split('/')[1] - 1, b.split('/')[0]);
+                return db - da;
+            });
+
+            sortedDays.forEach(d => {
+                attendanceData[d].forEach(e => {
+                    let ded = e.deduction || "-";
+                    let badgeClass = e.absent ? 'absent' : (e.leave ? 'leave' : (e.attendance ? 'present' : ''));
+                    let statusText = e.absent ? 'غائب' : (e.leave ? 'مغادر' : (e.attendance ? 'حاضر' : '-'));
+                    
+                    rows += `
+                    <tr>
+                        <td>${d}</td>
+                        <td>${e.name}</td>
+                        <td>${e.attendance || "-"}</td>
+                        <td>${e.leave || "-"}</td>
+                        <td><span class="status-badge ${badgeClass}">${statusText}</span></td>
+                        <td>${ded}</td>
+                    </tr>`;
+                });
+            });
+
+            let html = `
+                <!DOCTYPE html>
+                <html dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    ${style}
+                </head>
+                <body>
+                    <h2 style="text-align:center; color:#4472C4;">تقرير الحضور والانصراف</h2>
+                    <table>
+                        <thead>
+                            <tr class="header-row">
+                                <th>التاريخ</th>
+                                <th>اسم الموظف</th>
+                                <th>وقت الحضور</th>
+                                <th>وقت الانصراف</th>
+                                <th>الحالة</th>
+                                <th>الخصم</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div style="text-align:center; margin-top:20px; font-weight:bold; color:#555;">تم إنشاؤه بواسطة أحمد شعبان</div>
+                </body>
+                </html>
+            `;
+
+            let blob = new Blob(['\ufeff', html], { type: 'application/msword' }); 
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'Report_Attendance.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showNotification("تم التصدير بنجاح", "success");
+        }
+
+        function exportWhatsApp() {
+            let phone = prompt("رقم الواتساب (مع مفتاح الدولة)"); if(!phone) return;
+            phone = phone.replace(/\D/g, "");
+            let msg = "تقرير الحضور:\n";
+            let sortedDays = Object.keys(attendanceData).sort((a,b)=>new Date(b.split('/')[2],b.split('/')[1]-1,b.split('/')[0])-new Date(a.split('/')[2],a.split('/')[1]-1,a.split('/')[0]));
+            sortedDays.forEach(d => attendanceData[d].forEach(e => {
+                msg += `${d} | ${e.name} | ${e.attendance||'-'} | ${e.leave||'-'} | ${e.deduction||'-'}\n`;
+            }));
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+        }
+
+        // --- UI Logic ---
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showClearModal() { document.getElementById('clearModal').style.display = 'flex'; }
+        function clearAllData() { 
+            if(confirm("هل أنت متأكد؟")) { 
+                attendanceData={}; localStorage.setItem("attendanceData", JSON.stringify(attendanceData)); 
+                save(); closeModal('clearModal'); showNotification("تم المسح", "success"); 
+            } 
+        }
+        
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+        if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode');
+
+        render(); updateStats(); updateChart();
+    </script>
+</body>
+</html>
