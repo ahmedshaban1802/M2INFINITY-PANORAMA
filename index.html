@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الحضور والانصراف</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام الحضور والانصراف الاحترافي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -20,16 +20,17 @@
             --radius: 16px;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; outline: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body {
             background: var(--bg-grad);
             color: var(--dark);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
         
-        .container { max-width: 1100px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; transition: all 0.3s ease; }
         
         /* Header */
         header {
@@ -38,29 +39,29 @@
             align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
             border-bottom: 4px solid var(--primary);
         }
-        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .brand-icon {
             width: 45px; height: 45px; background: var(--primary); color: white;
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             font-size: 20px; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
         }
-        h2 { font-size: 20px; font-weight: 800; color: var(--dark); }
+        h2 { font-size: 20px; font-weight: 800; color: var(--dark); white-space: nowrap; }
         
-        .header-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .header-tools { display: flex; gap: 10px; align-items: center; }
         
         /* Live Clock */
         .live-clock {
             background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px;
             font-family: 'Courier New', monospace; font-weight: 700; font-size: 16px;
             border: 1px solid #dbeafe; display: flex; align-items: center; gap: 8px;
-            letter-spacing: 1px;
+            letter-spacing: 1px; flex-shrink: 0;
         }
 
         /* Date Picker */
         .date-box {
             background: var(--light); padding: 8px 15px; border-radius: 30px;
             border: 1px solid #eee; display: flex; align-items: center; gap: 8px;
-            transition: 0.3s;
+            transition: 0.3s; flex-shrink: 0;
         }
         .date-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
         .date-box input {
@@ -68,135 +69,74 @@
         }
 
         /* Stats */
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .stat-card {
             background: white; padding: 20px; border-radius: var(--radius);
             box-shadow: var(--shadow); display: flex; align-items: center; gap: 15px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease; border: 1px solid rgba(0,0,0,0.02);
         }
         .stat-card:hover { transform: translateY(-5px); }
         .s-icon {
-            width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
-            justify-content: center; font-size: 18px;
+            width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 20px;
         }
         .s-info h4 { font-size: 12px; color: var(--gray); margin-bottom: 2px; }
-        .s-info span { font-size: 22px; font-weight: 800; color: var(--dark); }
+        .s-info span { font-size: 24px; font-weight: 800; color: var(--dark); }
         .c-pres { background: rgba(46, 196, 182, 0.1); color: var(--success); }
         .c-abs { background: rgba(239, 71, 111, 0.1); color: var(--danger); }
         .c-lev { background: rgba(255, 209, 102, 0.1); color: #e0aa00; }
 
-        /* Controls */
+        /* Controls Panel */
         .panel { background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; }
         .input-group { position: relative; margin-bottom: 20px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 8px; }
-        .input-group i {
-            position: absolute; right: 15px; top: 40px; color: #ccc; transition: 0.3s;
-        }
+        .input-group i { position: absolute; right: 15px; top: 40px; color: #ccc; transition: 0.3s; }
         .inp { width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; transition: 0.3s; background: #fcfcfc; }
         .inp:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(67,97,238,0.05); }
         .inp:focus + i { color: var(--primary); }
 
-        /* --- IMPROVED MANUAL TIME TOGGLE --- */
+        /* Toggle Time */
         .toggle-container {
-            background: #f8faff;
-            border: 1px solid #e0e7ff;
-            border-radius: 12px;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(67, 97, 238, 0.03);
+            background: #f8faff; border: 1px solid #e0e7ff; border-radius: 12px;
+            padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(67, 97, 238, 0.03);
         }
-        
-        .toggle-text {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .toggle-text { font-size: 14px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
         .toggle-text i { color: var(--primary); }
 
-        /* The Switch Itself */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 54px;
-            height: 30px;
-        }
+        .switch { position: relative; display: inline-block; width: 54px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
-            border-radius: 34px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         .slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         input:checked + .slider { background-color: var(--primary); box-shadow: 0 0 10px rgba(67, 97, 238, 0.4); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        /* The Sliding Input Box */
         .time-sliding-wrapper {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
-            margin-bottom: 0; /* Hidden state margin */
+            max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1); margin-bottom: 0;
         }
-        
-        .time-sliding-wrapper.active {
-            max-height: 80px;
-            opacity: 1;
-            transform: translateY(0);
-            margin-bottom: 20px; /* Visible state margin */
-        }
-
-        .time-input-box {
-            background: white;
-            border: 2px dashed #cbd5e1;
-            border-radius: 10px;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .time-input-box input[type="time"] {
-            border: none; background: transparent; font-family: inherit; font-size: 16px; color: var(--dark); font-weight: 600; width: 100%; outline: none;
-        }
-        ::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
-        /* --- END IMPROVED TOGGLE --- */
+        .time-sliding-wrapper.active { max-height: 80px; opacity: 1; transform: translateY(0); margin-bottom: 20px; }
+        .time-input-box { background: white; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        .time-input-box input[type="time"] { border: none; background: transparent; font-family: inherit; font-size: 16px; color: var(--dark); font-weight: 600; width: 100%; outline: none; }
 
         /* Buttons Grid */
-        .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
         .btn {
             padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700;
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.3s; font-size: 14px; position: relative; overflow: hidden;
+            transition: 0.3s; font-size: 14px; position: relative; overflow: hidden; white-space: nowrap;
         }
         .btn:active { transform: scale(0.98); }
-        .btn::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.2), transparent); opacity: 0; transition: 0.3s;
-        }
+        .btn::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(255,255,255,0.2), transparent); opacity: 0; transition: 0.3s; }
         .btn:hover::after { opacity: 1; }
-        
         .b-in { background: linear-gradient(135deg, #2ec4b6 0%, #20a4a4 100%); box-shadow: 0 4px 15px rgba(46, 196, 182, 0.3); }
         .b-out { background: linear-gradient(135deg, #ef476f 0%, #d6335c 100%); box-shadow: 0 4px 15px rgba(239, 71, 111, 0.3); }
         .b-abs { background: linear-gradient(135deg, #ffd166 0%, #ffbd00 100%); color: #5d4000; box-shadow: 0 4px 15px rgba(255, 209, 102, 0.3); }
@@ -212,10 +152,10 @@
         .tool-btn:hover { border-color: var(--primary); color: var(--primary); background: #f8faff; }
 
         /* Table */
-        .table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
         .t-head {
             background: #f8f9fa; padding: 15px 25px; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; min-width: 700px;
         }
         .view-date { font-weight: 800; color: var(--primary); font-size: 16px; }
         .nav-btns { display: flex; gap: 5px; }
@@ -226,9 +166,9 @@
         }
         .nav-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { padding: 12px; text-align: center; font-size: 13px; color: var(--gray); font-weight: 700; background: #fdfdfd; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #f8f9fa; font-size: 14px; color: var(--dark); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { padding: 12px; text-align: center; font-size: 13px; color: var(--gray); font-weight: 700; background: #fdfdfd; white-space: nowrap; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #f8f9fa; font-size: 14px; color: var(--dark); white-space: nowrap; vertical-align: middle;}
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #fafafa; }
 
@@ -241,9 +181,9 @@
         .action-btn:hover { background: var(--primary); color: white; }
         .action-btn.del:hover { background: var(--danger); border-color: var(--danger); color: white; }
 
-        /* Modal */
+        /* Modals */
         .modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
             backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center;
         }
         .modal-content {
@@ -251,18 +191,21 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
         .m-head { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .m-title { font-size: 18px; font-weight: 800; color: var(--dark); }
-        .m-close { width: 30px; height: 30px; border-radius: 50%; border: none; background: #eee; cursor: pointer; color: #666; }
+        .m-close { width: 30px; height: 30px; border-radius: 50%; border: none; background: #eee; cursor: pointer; color: #666; transition: 0.2s; }
         .m-close:hover { background: var(--danger); color: white; }
         
         .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full { grid-column: span 2; }
-        
         textarea.inp { resize: none; height: 80px; }
 
-        /* Notification */
+        /* Time Input Styling for Modal */
+        .modal .inp[type="time"] {
+            padding: 12px 15px; /* Adjust padding for no icon */
+        }
+        
+        /* Toast */
         .toast {
             position: fixed; top: 20px; left: 20px; background: white; padding: 15px 25px;
             border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -275,7 +218,7 @@
         .toast i { font-size: 18px; }
         .toast.success i { color: var(--success); }
 
-        /* Footer (Cleaned) */
+        /* Footer */
         footer {
             text-align: center; margin-top: 40px; padding: 25px;
             background: white; border-radius: var(--radius);
@@ -287,12 +230,28 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
+        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .edit-grid { grid-template-columns: 1fr; }
-            .full { grid-column: span 1; }
-            .btn-grid { grid-template-columns: 1fr 1fr; }
-            .b-in, .b-out { grid-column: span 1; }
-            .header-tools { width: 100%; justify-content: space-between; margin-top: 10px; }
+            body { padding: 10px; background: #eef2f5; }
+            .container { width: 100%; max-width: 100%; padding: 0; }
+            header { flex-wrap: nowrap; overflow-x: auto; padding: 15px; align-items: stretch; gap: 15px; border-bottom: none; margin-bottom: 15px; }
+            .brand { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 100px; }
+            h2 { font-size: 16px; }
+            .header-tools { display: flex; gap: 10px; min-width: max-content; }
+            .stats { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 5px; margin-bottom: 15px; }
+            .stat-card { min-width: 160px; flex-shrink: 0; padding: 15px; }
+            .s-icon { width: 40px; height: 40px; }
+            .s-info h4 { font-size: 11px; }
+            .s-info span { font-size: 18px; }
+            .panel { padding: 15px; margin-bottom: 15px; border-radius: 12px; }
+            .btn-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
+            .btn { min-width: 80px; flex: 0 0 auto; flex-direction: column; padding: 12px 8px; font-size: 12px; gap: 5px; border-radius: 10px; }
+            .btn i { font-size: 18px; margin: 0; }
+            .table-wrap { overflow-x: auto; border-radius: 12px; }
+            table { min-width: 800px; }
+            .t-head { min-width: 800px; }
+            .tools { overflow-x: auto; gap: 8px; padding-top: 15px; }
+            .tool-btn { min-width: 100px; flex-shrink: 0; }
         }
     </style>
 </head>
@@ -307,12 +266,10 @@
                 </div>
             </div>
             <div class="header-tools">
-                <!-- Live Clock -->
                 <div class="live-clock">
                     <i class="far fa-clock"></i>
                     <span id="clockDisplay">--:--:--</span>
                 </div>
-                
                 <div class="date-box">
                     <i class="far fa-calendar-alt" style="color:var(--primary)"></i>
                     <input type="date" id="dateFilter">
@@ -343,19 +300,14 @@
                 <i class="fas fa-user"></i>
             </div>
 
-            <!-- NEW IMPROVED TOGGLE -->
             <div class="toggle-container">
-                <div class="toggle-text">
-                    <i class="fas fa-stopwatch"></i>
-                    تثبيت الوقت يدوياً
-                </div>
+                <div class="toggle-text"><i class="fas fa-stopwatch"></i> تثبيت الوقت يدوياً</div>
                 <label class="switch">
                     <input type="checkbox" id="manualTimeToggle" onchange="toggleTimeInput()">
                     <span class="slider"></span>
                 </label>
             </div>
 
-            <!-- NEW SLIDING INPUT -->
             <div id="manualTimeInputGroup" class="time-sliding-wrapper">
                 <div class="time-input-box">
                     <i class="far fa-clock" style="color:var(--primary); font-size:18px;"></i>
@@ -371,7 +323,6 @@
                 <button class="btn b-del" onclick="deleteEmployee()"><i class="fas fa-trash"></i> حذف</button>
             </div>
 
-            <!-- Hidden Deduction Input -->
             <div id="deductionBox" style="display:none; margin-top:15px; animation: fadeIn 0.3s;">
                 <div class="input-group">
                     <label>تفاصيل الخصم</label>
@@ -424,7 +375,35 @@
     <!-- Toast -->
     <div class="toast success" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">تم</span></div>
 
-    <!-- Comprehensive Edit Modal -->
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="text-align:center; max-width:350px;">
+            <div style="font-size:40px; color:var(--danger); margin-bottom:15px;"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 style="margin-bottom:10px;">تأكيد</h3>
+            <p id="confirmMsg" style="color:var(--gray); margin-bottom:20px;">هل أنت متأكد؟</p>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn b-del" id="confirmCancelBtn" style="flex:1;">إلغاء</button>
+                <button class="btn b-in" id="confirmOkBtn" style="flex:1;">نعم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prompt Modal -->
+    <div class="modal" id="promptModal">
+        <div class="modal-content">
+            <div class="m-head">
+                <div class="m-title" id="promptTitle">إدخال</div>
+                <button class="m-close" onclick="closeModal('promptModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="input-group">
+                <label id="promptLabel">القيمة</label>
+                <input type="text" id="promptInput" class="inp">
+            </div>
+            <button class="btn b-in full" onclick="submitPrompt()" style="margin-top:10px;">تم</button>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL (The Pen Button Logic) -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="m-head">
@@ -442,10 +421,12 @@
                 <div class="edit-grid">
                     <div class="input-group">
                         <label>وقت الحضور</label>
+                        <!-- Time Input Type for Manual Selection -->
                         <input type="time" id="editIn" class="inp">
                     </div>
                     <div class="input-group">
                         <label>وقت الانصراف</label>
+                        <!-- Time Input Type for Manual Selection -->
                         <input type="time" id="editOut" class="inp">
                     </div>
                 </div>
@@ -471,47 +452,80 @@
         </div>
     </div>
 
-    <!-- Clear Modal -->
-    <div class="modal" id="clearModal">
-        <div class="modal-content" style="max-width:350px; text-align:center;">
-            <div style="font-size:40px; color:var(--danger); margin-bottom:15px;"><i class="fas fa-exclamation-triangle"></i></div>
-            <h3 style="margin-bottom:10px;">تأكيد الحذف</h3>
-            <p style="color:var(--gray); margin-bottom:20px;">سيتم مسح جميع البيانات نهائياً.</p>
-            <div style="display:flex; gap:10px; justify-content:center;">
-                <button class="btn b-del" onclick="closeModal('clearModal')" style="flex:1;">إلغاء</button>
-                <button class="btn b-out" onclick="clearAllData()" style="flex:1;">نعم، امسح</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let db = JSON.parse(localStorage.getItem("attnDB")) || {};
         const dateIn = document.getElementById('dateFilter');
-        
-        // Init
         dateIn.valueAsDate = new Date();
 
-        // Live Clock Function
+        // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clockDisplay').innerText = now.toLocaleTimeString('en-US', {hour12: true});
         }
         setInterval(updateClock, 1000);
-        updateClock(); // Run immediately
+        updateClock();
 
         // Helpers
         function fmtDate(d) { return d.getDate().toString().padStart(2,'0') + "/" + (d.getMonth()+1).toString().padStart(2,'0') + "/" + d.getFullYear(); }
         function toKey(val) { if(!val) return ""; let [y,m,d] = val.split('-'); return d+"/"+m+"/"+y; }
         function fmtTime(d) { let h=d.getHours(), m=d.getMinutes().toString().padStart(2,'0'); return (h%12||12)+":"+m+(h>=12?"م":"ص"); }
+        
+        // ROBUST FIX: Convert DB format (e.g. "9:00ص" or "09:00") to HTML Input Time (HH:MM)
         function toTimeInput(str) { 
-            if(!str) return ""; let [t,p]=str.split(' '); let[h,m]=t.split(':'); h=parseInt(h); 
-            if(p=='م'&&h!=12)h+=12; if(p=='ص'&&h==12)h=0; return h.toString().padStart(2,'0')+":"+m; 
+            if(!str) return ""; 
+            
+            // 1. Remove all non-numeric/colon characters to get raw time numbers
+            // e.g., "9:00ص" -> "9:00", "12:00م" -> "12:00"
+            let cleanStr = str.replace(/[^0-9:]/g, ''); 
+            
+            // 2. Split into hours and minutes
+            let parts = cleanStr.split(':');
+            if(parts.length < 2) return ""; // Invalid format
+            
+            let h = parseInt(parts[0]);
+            let m = parts[1] || "00";
+            
+            if (isNaN(h)) return ""; // Invalid hour
+            
+            // 3. Detect PM (Check if original string contains 'م')
+            let isPM = str.includes('م'); 
+            
+            // 4. Convert to 24-hour format
+            if (isPM && h !== 12) {
+                h += 12;
+            } else if (!isPM && h === 12) {
+                h = 0; // 12 AM is 00:00
+            }
+            
+            // 5. Return formatted string "HH:MM"
+            return h.toString().padStart(2, '0') + ":" + m.padStart(2, '0'); 
         }
+        
         function manualFmt(str) { if(!str) return ""; let[h,m]=str.split(':'); h=parseInt(h); return (h%12||12)+":"+m+(h>=12?"م":"ص"); }
+        function getRowId(name) { return "row-" + name.replace(/\s+/g, '-').replace(/[^\w\-]/g, ''); }
 
         function save() { localStorage.setItem("attnDB", JSON.stringify(db)); refresh(); updateStats(); }
         function getEmp(day, name) { if(!db[day]) db[day]=[]; let e=db[day].find(x=>x.name==name); if(!e){e={name}; db[day].push(e);} return e; }
         function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toastMsg').innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000); }
+
+        // Custom Modal Logic
+        let promptCallback = null; let confirmCallback = null;
+        function showConfirm(msg, callback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmMsg').innerText = msg;
+            confirmCallback = callback;
+            modal.style.display = 'flex';
+        }
+        document.getElementById('confirmCancelBtn').onclick = function() { closeModal('confirmModal'); confirmCallback = null; };
+        document.getElementById('confirmOkBtn').onclick = function() { if(confirmCallback) confirmCallback(); closeModal('confirmModal'); confirmCallback = null; };
+        function showPrompt(title, label, defaultValue, callback) {
+            const modal = document.getElementById('promptModal');
+            document.getElementById('promptTitle').innerText = title;
+            document.getElementById('promptLabel').innerText = label;
+            const input = document.getElementById('promptInput'); input.value = defaultValue || '';
+            promptCallback = callback; modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
+        }
+        function submitPrompt() { if(promptCallback) promptCallback(document.getElementById('promptInput').value); closeModal('promptModal'); promptCallback = null; }
 
         // View Logic
         function refresh() {
@@ -527,8 +541,9 @@
                 let notes = e.notes || '-';
                 let ded = e.deduction || '-';
                 
-                tb.innerHTML += `
-                <tr>
+                const tr = document.createElement('tr');
+                tr.id = getRowId(e.name);
+                tr.innerHTML = `
                     <td style="font-weight:bold">${e.name}</td>
                     <td style="color:var(--success)">${e.attendance||'-'}</td>
                     <td style="color:var(--danger)">${e.leave||'-'}</td>
@@ -539,13 +554,14 @@
                         <button class="action-btn" onclick="openEdit('${key}','${e.name}')"><i class="fas fa-pen"></i></button>
                         <button class="action-btn del" onclick="delRec('${key}','${e.name}')"><i class="fas fa-trash"></i></button>
                     </td>
-                </tr>`;
+                `;
+                tb.appendChild(tr);
             });
         }
 
         dateIn.addEventListener('change', refresh);
 
-        // Actions (Always Today)
+        // Actions
         function getT() { return document.getElementById('manualTimeToggle').checked ? manualFmt(document.getElementById('manualTimeInput').value) : fmtTime(new Date()); }
         
         function addAttendance() {
@@ -577,18 +593,28 @@
         }
         function deleteEmployee() {
             let n = document.getElementById('employeeName').value.trim(); if(!n) return showToast('أدخل الاسم');
-            let k = fmtDate(new Date()); if(db[k]) { db[k]=db[k].filter(x=>x.name!=n); save(); showToast('تم الحذف'); }
+            showConfirm('سيتم حذف سجل اليوم للموظف: ' + n, () => {
+                let k = fmtDate(new Date()); 
+                if(db[k]) { 
+                    db[k]=db[k].filter(x=>x.name!=n); 
+                    save(); 
+                    showToast('تم الحذف'); 
+                }
+            });
         }
 
-        // Edit Logic
+        // --- EDIT MODAL LOGIC (PEN BUTTON) ---
         window.currentEditName = null; 
         function openEdit(day, name) {
             window.currentEditName = name;
             let e = db[day].find(x=>x.name==name);
             document.getElementById('editDate').value = day;
             document.getElementById('editName').value = e.name;
+            
+            // CRITICAL FIX: Using the robust toTimeInput function
             document.getElementById('editIn').value = toTimeInput(e.attendance);
             document.getElementById('editOut').value = toTimeInput(e.leave);
+            
             document.getElementById('editAbsent').checked = !!e.absent;
             document.getElementById('editDeduction').value = e.deduction || "";
             document.getElementById('editNotes').value = e.notes || "";
@@ -621,25 +647,31 @@
                 save(); closeModal('editModal'); showToast('تم التعديل');
             }
         }
+        // --- END EDIT MODAL LOGIC ---
 
-        function delRec(day, name) { if(confirm('حذف هذا السجل؟')) { db[day]=db[day].filter(x=>x.name!=name); if(db[day].length==0) delete db[day]; save(); showToast('تم الحذف'); } }
+        function delRec(day, name) { 
+            showConfirm('حذف هذا السجل نهائياً؟', () => {
+                db[day]=db[day].filter(x=>x.name!=name); 
+                if(db[day].length==0) delete db[day]; 
+                save(); 
+                showToast('تم الحذف'); 
+            }); 
+        }
 
-        // UI - Updated to support Class Toggle
         function toggleTimeInput() {
             const isChecked = document.getElementById('manualTimeToggle').checked;
             const wrapper = document.getElementById('manualTimeInputGroup');
-            if (isChecked) {
-                wrapper.classList.add('active');
-            } else {
-                wrapper.classList.remove('active');
-            }
+            if (isChecked) wrapper.classList.add('active');
+            else wrapper.classList.remove('active');
         }
-        
         function changeDate(d) { let cur = new Date(dateIn.value); cur.setDate(cur.getDate()+d); dateIn.valueAsDate = cur; refresh(); }
         function setToday() { dateIn.valueAsDate = new Date(); refresh(); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function confirmClear() { document.getElementById('clearModal').style.display='flex'; }
-        function clearAllData() { if(confirm('تأكيد نهائي؟')) { db={}; localStorage.setItem("attnDB", JSON.stringify(db)); save(); closeModal('clearModal'); showToast('تم المسح'); } }
+        function confirmClear() { 
+            showConfirm('سيتم مسح جميع البيانات من النظام. هل أنت متأكد؟', () => { 
+                db={}; localStorage.setItem("attnDB", JSON.stringify(db)); save(); showToast('تم المسح'); 
+            }); 
+        }
         function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
         if(localStorage.getItem('theme')=='dark') document.body.classList.add('dark-mode');
 
@@ -649,9 +681,8 @@
             document.getElementById('presentCount').innerText=p; document.getElementById('absentCount').innerText=a; document.getElementById('leaveCount').innerText=l;
         }
 
-        // Exports (Fixed Excel & WhatsApp)
+        // Exports
         function exportExcel() {
-            // Table HTML with UTF-8 Meta
             let tableContent = `<table border="1" style="border-collapse:collapse; direction:rtl; font-family:sans-serif;">
                 <tr style="background:#4361ee; color:white;">
                     <th style="padding:10px;">التاريخ</th>
@@ -661,7 +692,6 @@
                     <th style="padding:10px;">الخصم</th>
                     <th style="padding:10px;">ملاحظات</th>
                 </tr>`;
-            
             Object.keys(db).sort().reverse().forEach(d => {
                 db[d].forEach(e => {
                     tableContent += `<tr>
@@ -675,8 +705,6 @@
                 });
             });
             tableContent += `</table>`;
-
-            // Create Blob with BOM for Arabic support
             let blob = new Blob(['\uFEFF', tableContent], { type: 'application/vnd.ms-excel' });
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
@@ -691,20 +719,15 @@
         function exportWhatsApp() {
             let k = toKey(dateIn.value); let data = db[k]||[];
             if(!data.length) return showToast('لا توجد بيانات لهذا اليوم');
-            
-            // Improved prompt
-            let phone = prompt("أدخل رقم الواتساب مع كود الدولة\n(مثال: 201000000000)"); 
-            if(!phone) return;
-            
-            // Clean phone number
-            phone = phone.replace(/\D/g, ''); // Remove non-digits
-            
-            let txt = `*تقرير يوم: ${k}*\n\n`; 
-            data.forEach(e => {
-                txt += `👤 ${e.name}\n⏰ الحضور: ${e.attendance||'-'}\n🏃 الانصراف: ${e.leave||'-'}\n📝 ${e.notes||e.deduction||'-'}\n------------------\n`;
+            showPrompt("إرسال عبر واتساب", "أدخل رقم الهاتف مع مفتاح الدولة", "", function(phone) {
+                if(!phone) return;
+                phone = phone.replace(/\D/g, ''); 
+                let txt = `*تقرير يوم: ${k}*\n\n`; 
+                data.forEach(e => {
+                    txt += `👤 ${e.name}\n⏰ الحضور: ${e.attendance||'-'}\n🏃 الانصراف: ${e.leave||'-'}\n📝 ${e.notes||e.deduction||'-'}\n------------------\n`;
+                });
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
             });
-            
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
         }
 
         // Start
