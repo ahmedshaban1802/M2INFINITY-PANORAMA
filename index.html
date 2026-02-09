@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام الحضور والانصراف الاحترافي</title>
+    <title>نظام الإدارة المتكامل (حضور - مرتبات)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -12,6 +12,7 @@
             --success: #2ec4b6;
             --danger: #ef476f;
             --warning: #ffd166;
+            --info: #4cc9f0;
             --dark: #2b2d42;
             --light: #f8f9fa;
             --gray: #8d99ae;
@@ -47,7 +48,35 @@
         }
         h2 { font-size: 20px; font-weight: 800; color: var(--dark); white-space: nowrap; }
         
-        .header-tools { display: flex; gap: 10px; align-items: center; }
+        /* UPDATED HEADER TOOLS FOR STACKING */
+        .header-tools { 
+            display: flex; 
+            gap: 10px; 
+            align-items: flex-end; 
+            flex-direction: column; /* Stack items vertically */
+        }
+
+        /* NEW SITE STATUS STYLE */
+        .site-status {
+            background: #fff;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid #e0e7ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.05);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            animation: fadeInDown 0.5s ease;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         /* Live Clock */
         .live-clock {
@@ -57,16 +86,40 @@
             letter-spacing: 1px; flex-shrink: 0;
         }
 
-        /* Date Picker */
-        .date-box {
-            background: var(--light); padding: 8px 15px; border-radius: 30px;
-            border: 1px solid #eee; display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; flex-shrink: 0;
+        /* --- TAB NAVIGATION --- */
+        .main-tabs {
+            display: flex;
+            background: white;
+            padding: 5px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            width: fit-content;
+            margin-right: auto;
+            margin-left: auto;
         }
-        .date-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
-        .date-box input {
-            border: none; background: transparent; font-size: 15px; font-weight: 600; color: var(--dark);
+        .tab-btn {
+            padding: 10px 30px;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
@@ -85,12 +138,13 @@
         .c-pres { background: rgba(46, 196, 182, 0.1); color: var(--success); }
         .c-abs { background: rgba(239, 71, 111, 0.1); color: var(--danger); }
         .c-lev { background: rgba(255, 209, 102, 0.1); color: #e0aa00; }
+        .c-money { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
 
         /* Controls Panel */
         .panel { background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; }
         .input-group { position: relative; margin-bottom: 20px; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 8px; }
-        .input-group i { position: absolute; right: 15px; top: 40px; color: #ccc; transition: 0.3s; }
+        .input-group i { position: absolute; right: 15px; top: 40px; color: #ccc; transition: 0.3s; pointer-events:none;}
         .inp { width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; transition: 0.3s; background: #fcfcfc; }
         .inp:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(67,97,238,0.05); }
         .inp:focus + i { color: var(--primary); }
@@ -143,6 +197,7 @@
         .b-ded { background: linear-gradient(135deg, #7209b7 0%, #560bad 100%); box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3); }
         .b-del { background: white; color: var(--danger); border: 2px solid #fee2e2; }
         .b-del:hover { background: #fee2e2; }
+        .b-money { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); }
 
         .tools { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #eee; }
         .tool-btn {
@@ -152,7 +207,7 @@
         .tool-btn:hover { border-color: var(--primary); color: var(--primary); background: #f8faff; }
 
         /* Table */
-        .table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
+        .table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; position:relative; z-index:1;}
         .t-head {
             background: #f8f9fa; padding: 15px 25px; border-bottom: 1px solid #eee;
             display: flex; justify-content: space-between; align-items: center; min-width: 700px;
@@ -200,11 +255,6 @@
         .full { grid-column: span 2; }
         textarea.inp { resize: none; height: 80px; }
 
-        /* Time Input Styling for Modal */
-        .modal .inp[type="time"] {
-            padding: 12px 15px; /* Adjust padding for no icon */
-        }
-        
         /* Toast */
         .toast {
             position: fixed; top: 20px; left: 20px; background: white; padding: 15px 25px;
@@ -230,6 +280,35 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
+        /* Salary Suggestions List */
+        #suggestionList {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000; 
+            padding: 0;
+            margin-top: 5px;
+        }
+        #suggestionList li {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f9f9f9;
+            transition: 0.2s;
+        }
+        #suggestionList li:hover {
+            background: #f0f8ff;
+            color: var(--primary);
+        }
+
         /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
             body { padding: 10px; background: #eef2f5; }
@@ -238,6 +317,11 @@
             .brand { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 100px; }
             h2 { font-size: 16px; }
             .header-tools { display: flex; gap: 10px; min-width: max-content; }
+            
+            .main-tabs { width: 100%; justify-content: space-between; margin-bottom: 15px; border-radius: 12px; overflow: hidden; }
+            .tab-btn { flex: 1; justify-content: center; padding: 10px; font-size: 13px; border-radius: 0; }
+            .tab-btn.active { border-radius: 0; }
+
             .stats { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 5px; margin-bottom: 15px; }
             .stat-card { min-width: 160px; flex-shrink: 0; padding: 15px; }
             .s-icon { width: 40px; height: 40px; }
@@ -261,108 +345,199 @@
             <div class="brand">
                 <div class="brand-icon"><i class="fas fa-clock"></i></div>
                 <div>
-                    <h2>نظام الحضور</h2>
-                    <div style="font-size:11px; color:var(--gray);">إدارة سجلات الموظفين</div>
+                    <h2>نظام الإدارة المتكامل</h2>
+                    <div style="font-size:11px; color:var(--gray);">حضور وانصراف | مرتبات</div>
                 </div>
             </div>
             <div class="header-tools">
+                <!-- NEW SITE STATUS MESSAGE -->
+                <div class="site-status">
+                    <i class="fas fa-tools"></i>
+                    الموقع تحت الإنشاء و يتم تجديد الموقع يومياً
+                </div>
+                
                 <div class="live-clock">
                     <i class="far fa-clock"></i>
                     <span id="clockDisplay">--:--:--</span>
                 </div>
-                <div class="date-box">
-                    <i class="far fa-calendar-alt" style="color:var(--primary)"></i>
-                    <input type="date" id="dateFilter">
-                </div>
-                <button class="nav-btn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
             </div>
         </header>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="s-icon c-pres"><i class="fas fa-user-check"></i></div>
-                <div class="s-info"><h4>الحضور</h4><span id="presentCount">0</span></div>
-            </div>
-            <div class="stat-card">
-                <div class="s-icon c-abs"><i class="fas fa-user-times"></i></div>
-                <div class="s-info"><h4>الغياب</h4><span id="absentCount">0</span></div>
-            </div>
-            <div class="stat-card">
-                <div class="s-icon c-lev"><i class="fas fa-sign-out-alt"></i></div>
-                <div class="s-info"><h4>الانصراف</h4><span id="leaveCount">0</span></div>
-            </div>
+
+        <!-- Navigation Tabs -->
+        <div class="main-tabs">
+            <button class="tab-btn active" onclick="switchTab('attendance')">
+                <i class="fas fa-calendar-check"></i> الحضور والانصراف
+            </button>
+            <button class="tab-btn" onclick="switchTab('salaries')">
+                <i class="fas fa-money-bill-wave"></i> إدارة المرتبات
+            </button>
         </div>
         
-        <div class="panel">
-            <div class="input-group">
-                <label>اسم الموظف</label>
-                <input type="text" id="employeeName" class="inp" placeholder="أدخل الاسم هنا...">
-                <i class="fas fa-user"></i>
-            </div>
-
-            <div class="toggle-container">
-                <div class="toggle-text"><i class="fas fa-stopwatch"></i> تثبيت الوقت يدوياً</div>
-                <label class="switch">
-                    <input type="checkbox" id="manualTimeToggle" onchange="toggleTimeInput()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div id="manualTimeInputGroup" class="time-sliding-wrapper">
-                <div class="time-input-box">
-                    <i class="far fa-clock" style="color:var(--primary); font-size:18px;"></i>
-                    <input type="time" id="manualTimeInput">
+        <!-- TAB 1: ATTENDANCE -->
+        <div id="attendance" class="tab-content active">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="s-icon c-pres"><i class="fas fa-user-check"></i></div>
+                    <div class="s-info"><h4>الحضور</h4><span id="presentCount">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="s-icon c-abs"><i class="fas fa-user-times"></i></div>
+                    <div class="s-info"><h4>الغياب</h4><span id="absentCount">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="s-icon c-lev"><i class="fas fa-sign-out-alt"></i></div>
+                    <div class="s-info"><h4>الانصراف</h4><span id="leaveCount">0</span></div>
                 </div>
             </div>
-
-            <div class="btn-grid">
-                <button class="btn b-in" onclick="addAttendance()"><i class="fas fa-sign-in-alt"></i> حضور</button>
-                <button class="btn b-out" onclick="addLeave()"><i class="fas fa-sign-out-alt"></i> انصراف</button>
-                <button class="btn b-abs" onclick="markAbsent()"><i class="fas fa-user-slash"></i> غياب</button>
-                <button class="btn b-ded" onclick="showDeductionInput()"><i class="fas fa-file-invoice"></i> خصم</button>
-                <button class="btn b-del" onclick="deleteEmployee()"><i class="fas fa-trash"></i> حذف</button>
-            </div>
-
-            <div id="deductionBox" style="display:none; margin-top:15px; animation: fadeIn 0.3s;">
+            
+            <div class="panel">
                 <div class="input-group">
-                    <label>تفاصيل الخصم</label>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="deductionInput" class="inp" placeholder="مثال: خصم يوم...">
-                        <button class="btn b-ded" onclick="saveDeduction()" style="width:auto; padding:0 20px;"><i class="fas fa-check"></i></button>
+                    <label>اسم الموظف</label>
+                    <input type="text" id="employeeName" class="inp" placeholder="أدخل الاسم هنا...">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="toggle-container">
+                    <div class="toggle-text"><i class="fas fa-stopwatch"></i> تثبيت الوقت يدوياً</div>
+                    <label class="switch">
+                        <input type="checkbox" id="manualTimeToggle" onchange="toggleTimeInput()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="manualTimeInputGroup" class="time-sliding-wrapper">
+                    <div class="time-input-box">
+                        <i class="far fa-clock" style="color:var(--primary); font-size:18px;"></i>
+                        <input type="time" id="manualTimeInput">
                     </div>
                 </div>
-            </div>
 
-            <div class="tools">
-                <button class="tool-btn" onclick="exportExcel()"><i class="fas fa-file-excel" style="color:#107c41"></i> Excel</button>
-                <button class="tool-btn" onclick="exportWhatsApp()"><i class="fab fa-whatsapp" style="color:#25D366"></i> واتساب</button>
-                <button class="tool-btn" onclick="confirmClear()"><i class="fas fa-eraser" style="color:var(--danger)"></i> مسح الكل</button>
-            </div>
-        </div>
-        
-        <div class="table-wrap">
-            <div class="t-head">
-                <div class="view-date" id="viewDateDisplay">...</div>
-                <div class="nav-btns">
-                    <button class="nav-btn" onclick="changeDate(-1)"><i class="fas fa-chevron-right"></i></button>
-                    <button class="nav-btn" onclick="setToday()"><i class="far fa-calendar-check"></i></button>
-                    <button class="nav-btn" onclick="changeDate(1)"><i class="fas fa-chevron-left"></i></button>
+                <div class="btn-grid">
+                    <button class="btn b-in" onclick="addAttendance()"><i class="fas fa-sign-in-alt"></i> حضور</button>
+                    <button class="btn b-out" onclick="addLeave()"><i class="fas fa-sign-out-alt"></i> انصراف</button>
+                    <button class="btn b-abs" onclick="markAbsent()"><i class="fas fa-user-slash"></i> غياب</button>
+                    <button class="btn b-ded" onclick="showDeductionInput()"><i class="fas fa-file-invoice"></i> خصم</button>
+                    <button class="btn b-del" onclick="deleteEmployee()"><i class="fas fa-trash"></i> حذف</button>
+                </div>
+
+                <div id="deductionBox" style="display:none; margin-top:15px; animation: fadeIn 0.3s;">
+                    <div class="input-group">
+                        <label>تفاصيل الخصم</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="deductionInput" class="inp" placeholder="مثال: خصم يوم...">
+                            <button class="btn b-ded" onclick="saveDeduction()" style="width:auto; padding:0 20px;"><i class="fas fa-check"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tools">
+                    <div class="date-box" style="background:var(--light); padding:8px 15px; border-radius:30px; border:1px solid #eee; display:flex; align-items:center; gap:8px; flex:1; max-width:250px;">
+                        <i class="far fa-calendar-alt" style="color:var(--primary)"></i>
+                        <input type="date" id="dateFilter" style="border:none; background:transparent; font-size:15px; font-weight:600; color:var(--dark); width:100%;">
+                    </div>
+                    <button class="tool-btn" onclick="exportExcel()"><i class="fas fa-file-excel" style="color:#107c41"></i> Excel</button>
+                    <button class="tool-btn" onclick="exportWhatsApp()"><i class="fab fa-whatsapp" style="color:#25D366"></i> واتساب + Excel</button>
+                    <button class="tool-btn" onclick="confirmClear()"><i class="fas fa-eraser" style="color:var(--danger)"></i> مسح الكل</button>
                 </div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>الاسم</th>
-                        <th>حضور</th>
-                        <th>انصراف</th>
-                        <th>الحالة</th>
-                        <th>الخصم</th>
-                        <th>ملاحظات</th>
-                        <th>تعديل</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+            
+            <div class="table-wrap">
+                <div class="t-head">
+                    <div class="view-date" id="viewDateDisplay">...</div>
+                    <div class="nav-btns">
+                        <button class="nav-btn" onclick="changeDate(-1)"><i class="fas fa-chevron-right"></i></button>
+                        <button class="nav-btn" onclick="setToday()"><i class="far fa-calendar-check"></i></button>
+                        <button class="nav-btn" onclick="changeDate(1)"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>حضور</th>
+                            <th>انصراف</th>
+                            <th>الحالة</th>
+                            <th>الخصم</th>
+                            <th>ملاحظات</th>
+                            <th>تعديل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: SALARIES (MANUAL ONLY) -->
+        <div id="salaries" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="s-icon c-money"><i class="fas fa-users"></i></div>
+                    <div class="s-info"><h4>عدد الموظفين</h4><span id="salaryEmpCount">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="s-icon c-money"><i class="fas fa-wallet"></i></div>
+                    <div class="s-info"><h4>صافي المرتبات</h4><span id="netSalaries">0</span> ج.م</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 style="margin-bottom:20px; color:var(--primary); font-weight:800;">إدارة بيانات الرواتب</h3>
+                
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; align-items:end; position:relative;">
+                    
+                    <!-- Autocomplete Input -->
+                    <div class="input-group" style="margin-bottom:0; position:relative; z-index:10;">
+                        <label>اسم الموظف</label>
+                        <input type="text" id="salNameInput" class="inp" placeholder="ابدأ بكتابة الاسم..." onkeyup="suggestNames(this.value)" onblur="setTimeout(()=>hideSuggestions(), 200)">
+                        <i class="fas fa-user"></i>
+                        <!-- Suggestions List -->
+                        <ul id="suggestionList"></ul>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>نوع القبض</label>
+                        <select id="salTypeInput" class="inp" style="padding-right:15px; cursor:pointer;">
+                            <option value="monthly">شهري</option>
+                            <option value="weekly">أسبوعي</option>
+                        </select>
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>المرتب الأساسي (ج.م)</label>
+                        <input type="number" id="salAmountInput" class="inp" placeholder="0.00">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+
+                    <button class="btn b-money" onclick="addSalary()" style="height:48px; margin-bottom:20px;">
+                        <i class="fas fa-save"></i> حفظ البيانات
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <div class="t-head">
+                    <div class="view-date">جدول المرتبات والمسحوبات</div>
+                    <div class="nav-btns">
+                        <button class="nav-btn" onclick="exportSalariesExcel()"><i class="fas fa-file-excel" style="color:#107c41"></i></button>
+                        <button class="nav-btn" onclick="exportSalariesWhatsApp()"><i class="fab fa-whatsapp" style="color:#25D366"></i></button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الموظف</th>
+                            <th>المرتب الأساسي (ج.م)</th>
+                            <th>نوع القبض</th>
+                            <th>المسحوبات (خصم)</th>
+                            <th style="color:var(--primary); font-weight:800;">الصافي المستحق</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salaryTableBody"></tbody>
+                </table>
+            </div>
         </div>
 
         <footer>
@@ -388,22 +563,7 @@
         </div>
     </div>
 
-    <!-- Prompt Modal -->
-    <div class="modal" id="promptModal">
-        <div class="modal-content">
-            <div class="m-head">
-                <div class="m-title" id="promptTitle">إدخال</div>
-                <button class="m-close" onclick="closeModal('promptModal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="input-group">
-                <label id="promptLabel">القيمة</label>
-                <input type="text" id="promptInput" class="inp">
-            </div>
-            <button class="btn b-in full" onclick="submitPrompt()" style="margin-top:10px;">تم</button>
-        </div>
-    </div>
-
-    <!-- EDIT MODAL (The Pen Button Logic) -->
+    <!-- EDIT MODAL (Attendance) -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="m-head">
@@ -421,12 +581,10 @@
                 <div class="edit-grid">
                     <div class="input-group">
                         <label>وقت الحضور</label>
-                        <!-- Time Input Type for Manual Selection -->
                         <input type="time" id="editIn" class="inp">
                     </div>
                     <div class="input-group">
                         <label>وقت الانصراف</label>
-                        <!-- Time Input Type for Manual Selection -->
                         <input type="time" id="editOut" class="inp">
                     </div>
                 </div>
@@ -453,7 +611,10 @@
     </div>
 
     <script>
+        // --- GLOBAL DATA ---
         let db = JSON.parse(localStorage.getItem("attnDB")) || {};
+        let salaryDB = JSON.parse(localStorage.getItem("salaryDB")) || [];
+
         const dateIn = document.getElementById('dateFilter');
         dateIn.valueAsDate = new Date();
 
@@ -465,39 +626,318 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Helpers
+        // --- TABS LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            if(tabId === 'attendance') btns[0].classList.add('active');
+            else btns[1].classList.add('active');
+
+            if(tabId === 'attendance') {
+                refresh();
+                updateStats();
+            } else {
+                renderSalaries();
+                updateSalaryStats();
+            }
+        }
+
+        // --- SALARIES LOGIC (MANUAL ONLY) ---
+        
+        function suggestNames(query) {
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = '';
+            if(query.length < 2) { list.style.display = 'none'; return; }
+
+            let allNames = new Set();
+            // Search in Attendance DB
+            Object.keys(db).forEach(date => {
+                db[date].forEach(emp => allNames.add(emp.name));
+            });
+            // Search in Salary DB
+            salaryDB.forEach(s => allNames.add(s.name));
+
+            const matches = Array.from(allNames).filter(name => name.includes(query));
+            
+            if(matches.length > 0) {
+                list.style.display = 'block';
+                matches.forEach(name => {
+                    const li = document.createElement('li');
+                    li.innerText = name;
+                    li.onmouseover = () => li.style.background = '#f0f8ff';
+                    li.onmouseout = () => li.style.background = 'white';
+                    li.onclick = () => {
+                        document.getElementById('salNameInput').value = name;
+                        // Auto-fill if exists
+                        const existing = salaryDB.find(s => s.name === name);
+                        if(existing) {
+                            document.getElementById('salTypeInput').value = existing.type;
+                            document.getElementById('salAmountInput').value = existing.salary;
+                        }
+                        list.style.display = 'none';
+                    };
+                    list.appendChild(li);
+                });
+            } else {
+                list.style.display = 'none';
+            }
+        }
+
+        function hideSuggestions() {
+            document.getElementById('suggestionList').style.display = 'none';
+        }
+
+        function addSalary() {
+            const name = document.getElementById('salNameInput').value.trim();
+            const type = document.getElementById('salTypeInput').value; 
+            const amount = parseFloat(document.getElementById('salAmountInput').value);
+
+            if (!name || isNaN(amount)) {
+                return showToast('برجاء إدخال الاسم والمبلغ بشكل صحيح');
+            }
+
+            let index = salaryDB.findIndex(s => s.name === name);
+            const isUpdate = index > -1;
+
+            const entry = {
+                id: isUpdate ? salaryDB[index].id : Date.now(),
+                name: name,
+                type: type,
+                salary: amount,
+                deductions: isUpdate ? salaryDB[index].deductions : [], 
+                date: isUpdate ? salaryDB[index].date : new Date().toLocaleDateString('en-GB')
+            };
+
+            if(isUpdate) {
+                salaryDB[index] = entry;
+                showToast('تم تحديث بيانات الموظف');
+            } else {
+                salaryDB.push(entry);
+                showToast('تم إضافة الموظف بنجاح');
+            }
+
+            localStorage.setItem("salaryDB", JSON.stringify(salaryDB));
+            
+            document.getElementById('salNameInput').value = '';
+            document.getElementById('salAmountInput').value = '';
+            
+            renderSalaries();
+            updateSalaryStats();
+        }
+
+        function addDeduction(empName) {
+            const amount = prompt(`أدخل مبلغ الخصم/السلفة للموظف: ${empName}`);
+            if(amount === null || amount.trim() === "") return;
+            
+            const val = parseFloat(amount);
+            if(isNaN(val) || val <= 0) {
+                return showToast('المبلغ غير صحيح');
+            }
+
+            const reason = prompt("سبب الخصم (اختياري):", "سلفة") || "بدون سبب";
+
+            const idx = salaryDB.findIndex(s => s.name === empName);
+            if(idx > -1) {
+                salaryDB[idx].deductions.push({
+                    amount: val,
+                    reason: reason,
+                    date: new Date().toLocaleDateString('en-GB')
+                });
+                localStorage.setItem("salaryDB", JSON.stringify(salaryDB));
+                renderSalaries();
+                updateSalaryStats();
+                showToast(`تم إضافة خصم بقيمة ${val} ج.م`);
+            }
+        }
+
+        function renderSalaries() {
+            const tbody = document.getElementById('salaryTableBody');
+            tbody.innerHTML = '';
+            
+            if(salaryDB.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="padding:30px; color:#aaa; text-align:center;">لا توجد بيانات مرتبات مسجلة</td></tr>`;
+                return;
+            }
+
+            salaryDB.forEach((s, index) => {
+                const totalDed = s.deductions.reduce((sum, d) => sum + d.amount, 0);
+                const netSalary = s.salary - totalDed;
+                const typeLabel = s.type === 'weekly' ? 'أسبوعي' : 'شهري';
+
+                let dedDetails = s.deductions.length > 0 
+                    ? s.deductions.map(d => `${d.reason}: ${d.amount}`).join(' | ') 
+                    : 'لا يوجد';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td style="font-weight:bold; color:var(--primary);">${s.name}</td>
+                    <td style="font-family:monospace; font-size:16px;">${s.salary.toLocaleString()}</td>
+                    <td><span class="badge" style="background:#eee; color:#555;">${typeLabel}</span></td>
+                    <td style="color:var(--danger); font-weight:bold;">
+                        ${totalDed > 0 ? '-' + totalDed.toLocaleString() : '0'}
+                        ${totalDed > 0 ? `<i class="fas fa-info-circle" style="margin-right:5px; cursor:help; font-size:12px;" title="${dedDetails}"></i>` : ''}
+                    </td>
+                    <td style="color:var(--success); font-weight:bold; font-size:16px;">${netSalary.toLocaleString()}</td>
+                    <td>
+                        <button class="action-btn" onclick="addDeduction('${s.name}')" title="إضافة خصم/سلفة"><i class="fas fa-minus-circle" style="color:var(--danger)"></i></button>
+                        <button class="action-btn del" onclick="deleteSalary(${s.id})" title="حذف الموظف"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteSalary(id) {
+            showConfirm('هل أنت متأكد من حذف هذا الموظف من قائمة المرتبات؟', () => {
+                salaryDB = salaryDB.filter(s => s.id !== id);
+                localStorage.setItem("salaryDB", JSON.stringify(salaryDB));
+                renderSalaries();
+                updateSalaryStats();
+                showToast('تم الحذف');
+            });
+        }
+
+        function updateSalaryStats() {
+            document.getElementById('salaryEmpCount').innerText = salaryDB.length;
+            let totalNet = 0;
+            salaryDB.forEach(s => {
+                const totalDed = s.deductions.reduce((sum, d) => sum + d.amount, 0);
+                totalNet += (s.salary - totalDed);
+            });
+            document.getElementById('netSalaries').innerText = totalNet.toLocaleString();
+        }
+
+        // --- EXPORT FUNCTIONS (ATTENDANCE) ---
+        function exportExcel() {
+            let tableContent = `<table border="1" style="border-collapse:collapse; direction:rtl; font-family:sans-serif;">
+                <tr style="background:#4361ee; color:white;">
+                    <th style="padding:10px;">التاريخ</th>
+                    <th style="padding:10px;">الاسم</th>
+                    <th style="padding:10px;">حضور</th>
+                    <th style="padding:10px;">انصراف</th>
+                    <th style="padding:10px;">الخصم</th>
+                    <th style="padding:10px;">ملاحظات</th>
+                </tr>`;
+            Object.keys(db).sort().reverse().forEach(d => {
+                db[d].forEach(e => {
+                    tableContent += `<tr>
+                        <td style="padding:8px; text-align:center;">${d}</td>
+                        <td style="padding:8px; text-align:center;">${e.name}</td>
+                        <td style="padding:8px; text-align:center;">${e.attendance||'-'}</td>
+                        <td style="padding:8px; text-align:center;">${e.leave||'-'}</td>
+                        <td style="padding:8px; text-align:center;">${e.deduction||'-'}</td>
+                        <td style="padding:8px; text-align:center;">${e.notes||'-'}</td>
+                    </tr>`;
+                });
+            });
+            tableContent += `</table>`;
+            
+            let blob = new Blob(['\uFEFF', tableContent], { type: 'application/vnd.ms-excel' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'تقرير_الحضور.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('تم التصدير بنجاح');
+        }
+
+        function exportWhatsApp() {
+            let k = toKey(dateIn.value); let data = db[k]||[];
+            if(!data.length) return showToast('لا توجد بيانات لهذا اليوم');
+            
+            let phone = prompt("أدخل رقم الهاتف مع مفتاح الدولة (مثال: 201xxxxxxx):");
+            if(!phone) return;
+            
+            phone = phone.replace(/\D/g, ''); 
+            let txt = `*تقرير يوم: ${k}*\n\n`; 
+            data.forEach(e => {
+                txt += `👤 ${e.name}\n⏰ الحضور: ${e.attendance||'-'}\n🏃 الانصراف: ${e.leave||'-'}\n📝 ${e.notes||e.deduction||'-'}\n------------------\n`;
+            });
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
+            
+            // Auto Export Excel as requested
+            exportExcel();
+        }
+
+        // --- EXPORT FUNCTIONS (SALARIES) ---
+        function exportSalariesExcel() {
+            if(salaryDB.length === 0) return showToast('لا توجد بيانات للتصدير');
+            
+            let tableContent = `<table border="1" style="border-collapse:collapse; direction:rtl; font-family:sans-serif;">
+                <tr style="background:#4361ee; color:white;">
+                    <th style="padding:10px;">الاسم</th>
+                    <th style="padding:10px;">نوع القبض</th>
+                    <th style="padding:10px;">المرتب الأساسي (ج.م)</th>
+                    <th style="padding:10px;">إجمالي الخصومات</th>
+                    <th style="padding:10px;">الصافي المستحق</th>
+                </tr>`;
+            salaryDB.forEach(e => {
+                const totalDed = e.deductions.reduce((sum, d) => sum + d.amount, 0);
+                const typeLabel = e.type === 'weekly' ? 'أسبوعي' : 'شهري';
+                tableContent += `<tr>
+                    <td style="padding:8px; text-align:center;">${e.name}</td>
+                    <td style="padding:8px; text-align:center;">${typeLabel}</td>
+                    <td style="padding:8px; text-align:center;">${e.salary}</td>
+                    <td style="padding:8px; text-align:center; color:red;">${totalDed}</td>
+                    <td style="padding:8px; text-align:center; color:green; font-weight:bold;">${e.salary - totalDed}</td>
+                </tr>`;
+            });
+            tableContent += `</table>`;
+            
+            let blob = new Blob(['\uFEFF', tableContent], { type: 'application/vnd.ms-excel' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'جدول_المرتبات_النهائي.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('تم التصدير');
+        }
+
+        function exportSalariesWhatsApp() {
+            if(salaryDB.length === 0) return showToast('لا توجد بيانات مرتبات');
+            
+            let phone = prompt("أدخل رقم الهاتف مع مفتاح الدولة:");
+            if(!phone) return;
+
+            phone = phone.replace(/\D/g, ''); 
+            let txt = `*جدول المرتبات*\n\n`; 
+            salaryDB.forEach(e => {
+                const totalDed = e.deductions.reduce((sum, d) => sum + d.amount, 0);
+                const net = e.salary - totalDed;
+                txt += `👤 ${e.name}\n💰 المرتب: ${e.salary}\n➖ الخصومات: ${totalDed}\n✅ الصافي: ${net}\n------------------\n`;
+            });
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
+
+            // Auto Export Excel as requested
+            exportSalariesExcel();
+        }
+
+
+        // --- ATTENDANCE LOGIC (Original) ---
         function fmtDate(d) { return d.getDate().toString().padStart(2,'0') + "/" + (d.getMonth()+1).toString().padStart(2,'0') + "/" + d.getFullYear(); }
         function toKey(val) { if(!val) return ""; let [y,m,d] = val.split('-'); return d+"/"+m+"/"+y; }
         function fmtTime(d) { let h=d.getHours(), m=d.getMinutes().toString().padStart(2,'0'); return (h%12||12)+":"+m+(h>=12?"م":"ص"); }
         
-        // ROBUST FIX: Convert DB format (e.g. "9:00ص" or "09:00") to HTML Input Time (HH:MM)
         function toTimeInput(str) { 
             if(!str) return ""; 
-            
-            // 1. Remove all non-numeric/colon characters to get raw time numbers
-            // e.g., "9:00ص" -> "9:00", "12:00م" -> "12:00"
             let cleanStr = str.replace(/[^0-9:]/g, ''); 
-            
-            // 2. Split into hours and minutes
             let parts = cleanStr.split(':');
-            if(parts.length < 2) return ""; // Invalid format
-            
+            if(parts.length < 2) return ""; 
             let h = parseInt(parts[0]);
             let m = parts[1] || "00";
-            
-            if (isNaN(h)) return ""; // Invalid hour
-            
-            // 3. Detect PM (Check if original string contains 'م')
+            if (isNaN(h)) return ""; 
             let isPM = str.includes('م'); 
-            
-            // 4. Convert to 24-hour format
-            if (isPM && h !== 12) {
-                h += 12;
-            } else if (!isPM && h === 12) {
-                h = 0; // 12 AM is 00:00
-            }
-            
-            // 5. Return formatted string "HH:MM"
+            if (isPM && h !== 12) h += 12;
+            else if (!isPM && h === 12) h = 0; 
             return h.toString().padStart(2, '0') + ":" + m.padStart(2, '0'); 
         }
         
@@ -508,8 +948,7 @@
         function getEmp(day, name) { if(!db[day]) db[day]=[]; let e=db[day].find(x=>x.name==name); if(!e){e={name}; db[day].push(e);} return e; }
         function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toastMsg').innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000); }
 
-        // Custom Modal Logic
-        let promptCallback = null; let confirmCallback = null;
+        let confirmCallback = null;
         function showConfirm(msg, callback) {
             const modal = document.getElementById('confirmModal');
             document.getElementById('confirmMsg').innerText = msg;
@@ -518,16 +957,9 @@
         }
         document.getElementById('confirmCancelBtn').onclick = function() { closeModal('confirmModal'); confirmCallback = null; };
         document.getElementById('confirmOkBtn').onclick = function() { if(confirmCallback) confirmCallback(); closeModal('confirmModal'); confirmCallback = null; };
-        function showPrompt(title, label, defaultValue, callback) {
-            const modal = document.getElementById('promptModal');
-            document.getElementById('promptTitle').innerText = title;
-            document.getElementById('promptLabel').innerText = label;
-            const input = document.getElementById('promptInput'); input.value = defaultValue || '';
-            promptCallback = callback; modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
-        }
-        function submitPrompt() { if(promptCallback) promptCallback(document.getElementById('promptInput').value); closeModal('promptModal'); promptCallback = null; }
+        
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // View Logic
         function refresh() {
             const key = toKey(dateIn.value);
             document.getElementById('viewDateDisplay').innerText = key;
@@ -561,7 +993,6 @@
 
         dateIn.addEventListener('change', refresh);
 
-        // Actions
         function getT() { return document.getElementById('manualTimeToggle').checked ? manualFmt(document.getElementById('manualTimeInput').value) : fmtTime(new Date()); }
         
         function addAttendance() {
@@ -603,18 +1034,15 @@
             });
         }
 
-        // --- EDIT MODAL LOGIC (PEN BUTTON) ---
+        // EDIT MODAL LOGIC
         window.currentEditName = null; 
         function openEdit(day, name) {
             window.currentEditName = name;
             let e = db[day].find(x=>x.name==name);
             document.getElementById('editDate').value = day;
             document.getElementById('editName').value = e.name;
-            
-            // CRITICAL FIX: Using the robust toTimeInput function
             document.getElementById('editIn').value = toTimeInput(e.attendance);
             document.getElementById('editOut').value = toTimeInput(e.leave);
-            
             document.getElementById('editAbsent').checked = !!e.absent;
             document.getElementById('editDeduction').value = e.deduction || "";
             document.getElementById('editNotes').value = e.notes || "";
@@ -647,7 +1075,6 @@
                 save(); closeModal('editModal'); showToast('تم التعديل');
             }
         }
-        // --- END EDIT MODAL LOGIC ---
 
         function delRec(day, name) { 
             showConfirm('حذف هذا السجل نهائياً؟', () => {
@@ -666,7 +1093,6 @@
         }
         function changeDate(d) { let cur = new Date(dateIn.value); cur.setDate(cur.getDate()+d); dateIn.valueAsDate = cur; refresh(); }
         function setToday() { dateIn.valueAsDate = new Date(); refresh(); }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function confirmClear() { 
             showConfirm('سيتم مسح جميع البيانات من النظام. هل أنت متأكد؟', () => { 
                 db={}; localStorage.setItem("attnDB", JSON.stringify(db)); save(); showToast('تم المسح'); 
@@ -679,55 +1105,6 @@
             let k = fmtDate(new Date()); let p=0, a=0, l=0;
             if(db[k]) db[k].forEach(e => { if(e.absent)a++; else if(e.attendance&&e.leave)l++; else if(e.attendance)p++; });
             document.getElementById('presentCount').innerText=p; document.getElementById('absentCount').innerText=a; document.getElementById('leaveCount').innerText=l;
-        }
-
-        // Exports
-        function exportExcel() {
-            let tableContent = `<table border="1" style="border-collapse:collapse; direction:rtl; font-family:sans-serif;">
-                <tr style="background:#4361ee; color:white;">
-                    <th style="padding:10px;">التاريخ</th>
-                    <th style="padding:10px;">الاسم</th>
-                    <th style="padding:10px;">حضور</th>
-                    <th style="padding:10px;">انصراف</th>
-                    <th style="padding:10px;">الخصم</th>
-                    <th style="padding:10px;">ملاحظات</th>
-                </tr>`;
-            Object.keys(db).sort().reverse().forEach(d => {
-                db[d].forEach(e => {
-                    tableContent += `<tr>
-                        <td style="padding:8px; text-align:center;">${d}</td>
-                        <td style="padding:8px; text-align:center;">${e.name}</td>
-                        <td style="padding:8px; text-align:center;">${e.attendance||'-'}</td>
-                        <td style="padding:8px; text-align:center;">${e.leave||'-'}</td>
-                        <td style="padding:8px; text-align:center;">${e.deduction||'-'}</td>
-                        <td style="padding:8px; text-align:center;">${e.notes||'-'}</td>
-                    </tr>`;
-                });
-            });
-            tableContent += `</table>`;
-            let blob = new Blob(['\uFEFF', tableContent], { type: 'application/vnd.ms-excel' });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = 'تقرير_الحضور.xls';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast('تم التصدير بنجاح');
-        }
-
-        function exportWhatsApp() {
-            let k = toKey(dateIn.value); let data = db[k]||[];
-            if(!data.length) return showToast('لا توجد بيانات لهذا اليوم');
-            showPrompt("إرسال عبر واتساب", "أدخل رقم الهاتف مع مفتاح الدولة", "", function(phone) {
-                if(!phone) return;
-                phone = phone.replace(/\D/g, ''); 
-                let txt = `*تقرير يوم: ${k}*\n\n`; 
-                data.forEach(e => {
-                    txt += `👤 ${e.name}\n⏰ الحضور: ${e.attendance||'-'}\n🏃 الانصراف: ${e.leave||'-'}\n📝 ${e.notes||e.deduction||'-'}\n------------------\n`;
-                });
-                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
-            });
         }
 
         // Start
